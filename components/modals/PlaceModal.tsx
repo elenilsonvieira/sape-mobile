@@ -1,5 +1,5 @@
 import IPlace from "@/interfaces/IPlace";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal, ScrollView, StyleSheet, Switch, TextInput } from "react-native";
 
 import { ThemedView } from "../ThemedView";
@@ -9,10 +9,11 @@ export type PlaceModalProps = {
     visible: boolean;
     onCancel: () => void;
     onAdd: (place: IPlace) => void;
+    placeToEdit?: IPlace | null;
 }
 
 export default function PlaceModal({
-    visible, onAdd, onCancel
+    visible, onAdd, onCancel, placeToEdit,
     }: PlaceModalProps){
         const [name, setName] = useState('');
         const [reference, setReference] = useState('');
@@ -29,7 +30,7 @@ export default function PlaceModal({
         const handleSave = () => {
             
             const newPlace: IPlace ={
-                id: (Math.random() * 1000).toString(),
+                id: placeToEdit ? placeToEdit.id : (Math.random() * 1000).toString(),
                 name,
                 reference: reference.trim() || undefined,
                 maximumCapacityParticipants: maximumCapacityParticipants || undefined,
@@ -41,15 +42,26 @@ export default function PlaceModal({
             clearForm();
         };
 
+        useEffect(()=> {
+            if(placeToEdit) {
+                setName(placeToEdit.name);
+                setReference(placeToEdit.reference || '');
+                setMaximumCapacityParticipants(placeToEdit.maximumCapacityParticipants || undefined);
+                setIsPublic(placeToEdit.isPublic);
+            } else {
+                clearForm();
+            }
+        }, [placeToEdit]);
+
         return (
             <Modal visible={visible}
-                animationType="fade"
+                animationType="slide"
                 transparent={true}
                 onRequestClose={()=>{}}
             >
                 <ScrollView>
                     <ThemedView style={styles.modalContainer}>
-                        <ThemedText style={styles.title}>Adicionar novo Local</ThemedText>
+                        <ThemedText style={styles.title}>{placeToEdit ? 'Editar Local' :'Adicionar novo Local'}</ThemedText>
                         
                         <TextInput 
                             style={styles.input}

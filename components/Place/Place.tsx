@@ -1,25 +1,36 @@
 import IPlace from "@/interfaces/IPlace"
 import { ThemedView } from "../ThemedView";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "../ThemedText";
 
 export type PlaceProps = {
     place: IPlace;
+    onEdit: ()=> void;
+    onDelete: ()=> void;
 };
 
-export default function Place({ place }: PlaceProps) {
+export default function Place({ place, onEdit, onDelete }: PlaceProps) {
     return (
         <ThemedView style={styles.card}>
-            <ThemedText style={styles.name}>{place.name}</ThemedText>
-            {place.reference && <ThemedText style={styles.reference}>Referência: {place.reference}</ThemedText>}
-            {place.maximumCapacityParticipants && <ThemedText style={styles.capacity}>Capacidade Máxima: {place.maximumCapacityParticipants}</ThemedText>}
-            <ThemedText style={[styles.publicStatus, {color: place.isPublic ? 'green' : 'red'}]}>{place.isPublic ? 'Público' : 'Privado'}</ThemedText>
+          <ThemedView style={styles.actions}>
+            <TouchableOpacity onPress={onEdit} style={styles.button}>
+              <ThemedText style={styles.buttonText}>✏️Editar</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onDelete} style={styles.button}>
+              <ThemedText style={styles.buttonText}>🗑️Excluir</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+          <ThemedText style={styles.name}>{place.name}</ThemedText>
+          {place.reference && <ThemedText style={styles.reference}>Referência: {place.reference}</ThemedText>}
+          {place.maximumCapacityParticipants && <ThemedText style={styles.capacity}>Capacidade Máxima: {place.maximumCapacityParticipants}</ThemedText>}
+          <ThemedText style={[styles.publicStatus, {color: place.isPublic ? 'green' : 'red'}]}>{place.isPublic ? 'Público' : 'Privado'}</ThemedText>
         </ThemedView>
     );
 };
 
 const styles = StyleSheet.create({
     card: {
+    //   backgroundColor: '#fff',
       padding: 16,
       borderRadius: 8,
       marginBottom: 16,
@@ -45,5 +56,16 @@ const styles = StyleSheet.create({
     publicStatus: {
       fontSize: 14,
       fontWeight: 'bold',
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      marginBottom: 8,
+    },
+    button: {
+      marginLeft: 8,
+    },
+    buttonText: {
+      fontSize: 12,
     },
   });

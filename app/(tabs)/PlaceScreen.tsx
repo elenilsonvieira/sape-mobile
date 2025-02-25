@@ -9,6 +9,7 @@ import { Button, FlatList, SafeAreaView, StyleSheet } from "react-native";
 export default function PlaceScreen(){
     const [places, setPlaces] = useState<IPlace[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [editPlace, setEditPlace] = useState<IPlace | null>(null);
 
     useEffect(()=>{
         loadStorage();
@@ -29,12 +30,31 @@ export default function PlaceScreen(){
     }
 
     const handleAddPlace = (newPlace: IPlace) => {
+        if(editPlace){
+            const editingPlace = (prevPlaces: IPlace[]) => prevPlaces.map((place) => place.id === newPlace.id ? newPlace : place);
+            const placesUpdt = editingPlace(places);
+            setPlaces(placesUpdt);
+            handleStorage(placesUpdt);
+        } else {
+            const placeAdd: IPlace[] = [...places, newPlace]
+            setPlaces(placeAdd);
+            handleStorage(placeAdd);
+        }
 
-        const placeAdd: IPlace[] = [...places, newPlace]
-        setPlaces(placeAdd);
-        handleStorage(placeAdd);
-
+        setEditPlace(null);
         setShowModal(false);
+    }
+
+    const handleDeletePlace = (id: string) => {
+        const delPlace = (prevPlaces: IPlace[]) => prevPlaces.filter((place) => place.id !== id);
+        const placesUpdt = delPlace(places);
+        setPlaces(placesUpdt);
+        handleStorage(placesUpdt);
+    }
+
+    const handleEditPlace = (place: IPlace) =>{
+        setEditPlace(place);
+        setShowModal(true);
     }
 
     return (
@@ -45,14 +65,15 @@ export default function PlaceScreen(){
 
             <PlaceModal
                 visible={showModal}
-                onCancel={() => setShowModal(false)}
+                onCancel={() => {setShowModal(false); setEditPlace(null);}}
                 onAdd={handleAddPlace}
+                placeToEdit={editPlace}
             />
 
             <FlatList 
                 data={places}
                 keyExtractor={(item)=> item.id}
-                renderItem={({ item }) => <Place place={item} />}
+                renderItem={({ item }) => <Place place={item} onDelete={()=> handleDeletePlace(item.id)} onEdit={()=> handleEditPlace(item)}/>}
                 contentContainerStyle={styles.list}
              />
         </SafeAreaView>
