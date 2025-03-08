@@ -19,15 +19,36 @@ export default function PlaceModal({
         const [reference, setReference] = useState('');
         const [maximumCapacityParticipants, setMaximumCapacityParticipants] = useState<number | undefined>(undefined);
         const [isPublic, setIsPublic] = useState(false);
+        const [validates, setValidates] = useState<{ [key:string]: string} >({});
 
         const clearForm = () => {
             setName('');
             setReference('');
             setMaximumCapacityParticipants(undefined);
             setIsPublic(false);
+            setValidates({});
         }
 
+        const validateForm = () => {
+            const newErrors: { [key: string]: string} = {};
+
+            if (!name.trim()){
+                newErrors.name = 'O nome do local é obrigatório!';
+            }
+
+            if (maximumCapacityParticipants !== undefined && isNaN(maximumCapacityParticipants)){
+                newErrors.maximumCapacityParticipants = "A capacidade máxima deve ser um número válido!";
+            }
+
+            setValidates(newErrors);
+            return Object.keys(newErrors).length === 0;
+        }
+
+
         const handleSave = () => {
+            if (!validateForm()){
+                return;
+            }
             
             const newPlace: IPlace ={
                 id: placeToEdit ? placeToEdit.id : (Math.random() * 1000).toString(),
@@ -64,11 +85,12 @@ export default function PlaceModal({
                         <ThemedText style={styles.title}>{placeToEdit ? 'Editar Local' :'Adicionar novo Local'}</ThemedText>
                         
                         <TextInput 
-                            style={styles.input}
+                            style={[styles.input, validates.name && styles.inputError]}
                             placeholder="Nome do local"
                             value={name}
                             onChangeText={setName}
                         />
+                        {validates.name && <ThemedText style={styles.errorText}>{validates.name}</ThemedText>}
 
                         <TextInput 
                             style={styles.input}
@@ -78,12 +100,13 @@ export default function PlaceModal({
                         />
 
                         <TextInput 
-                            style={styles.input}
+                            style={[styles.input, validates.maximumCapacityParticipants && styles.inputError]}
                             placeholder="Capacidade Máxima (Opcional)"
                             keyboardType="numeric"
                             value={maximumCapacityParticipants?.toString() || ''}
                             onChangeText={(text) => setMaximumCapacityParticipants(Number(text))}
                         />
+                        {validates.maximumCapacityParticipants && <ThemedText style={styles.errorText}>{validates.maximumCapacityParticipants}</ThemedText>}
 
                         <ThemedView style={styles.switchContainer}>
                             <ThemedText>Público:</ThemedText>
@@ -125,6 +148,9 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         backgroundColor: 'white'
     },
+    inputError: {
+        borderColor: 'red',
+    },
     switchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -134,6 +160,10 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-},
+    },
+    errorText: {
+        color: 'red',
+        marginBottom: 8,
+    },
 });
 

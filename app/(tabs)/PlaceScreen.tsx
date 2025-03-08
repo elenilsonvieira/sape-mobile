@@ -1,3 +1,4 @@
+import alert from "@/components/alert";
 import PlaceModal from "@/components/modals/PlaceModal";
 import Place from "@/components/Place/Place";
 import { ThemedView } from "@/components/ThemedView";
@@ -35,10 +36,14 @@ export default function PlaceScreen(){
             const placesUpdt = editingPlace(places);
             setPlaces(placesUpdt);
             handleStorage(placesUpdt);
+
+            alert("Sucesso", "Local editado com sucesso!");
         } else {
             const placeAdd: IPlace[] = [...places, newPlace]
             setPlaces(placeAdd);
             handleStorage(placeAdd);
+            
+            alert("Sucesso", "Local adicionado com sucesso!");
         }
 
         setEditPlace(null);
@@ -46,10 +51,29 @@ export default function PlaceScreen(){
     }
 
     const handleDeletePlace = (id: string) => {
-        const delPlace = (prevPlaces: IPlace[]) => prevPlaces.filter((place) => place.id !== id);
-        const placesUpdt = delPlace(places);
-        setPlaces(placesUpdt);
-        handleStorage(placesUpdt);
+        alert(
+            "Confirmar Exclusão",
+            "Tem certeza que deseja excluir este local?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel",
+                },
+                {
+                    text: "Excluir",
+                    style: "destructive",
+                    onPress: () => {
+                        const delPlace = (prevPlaces: IPlace[]) => prevPlaces.filter((place) => place.id !== id);
+                        const placesUpdt = delPlace(places);
+                        setPlaces(placesUpdt);
+                        handleStorage(placesUpdt);
+
+                        alert("Sucesso", "Local excluido com sucesso!");
+                    }
+                }
+            ]
+        )
+        
     }
 
     const handleEditPlace = (place: IPlace) =>{
