@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Button,
+  SafeAreaView,
 } from "react-native";
 import { ISport } from "../../interface/ISport";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -157,7 +158,7 @@ export default function SportList() {
             placeholder="Nome do esporte"
             style={styles.input}
           />
-          <View style={styles.buttonsContainer}>
+          <SafeAreaView style={styles.buttonsContainer}>
             <Button
               title={isAdding ? "Adicionar" : "Salvar"}
               onPress={isAdding ? handleAddSport : handleUpdateSport}
@@ -170,7 +171,7 @@ export default function SportList() {
               />
             )}
             <Button title="Cancelar" onPress={closeModal} />
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     </View>
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   },
   buttonAdd: {
     position: "absolute",
-    bottom: 50,
+    bottom: 100,
     right: 20,
     backgroundColor: "#6DCA41",
     width: 60,

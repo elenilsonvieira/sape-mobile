@@ -1,6 +1,6 @@
 import IPlace from "@/interfaces/IPlace";
 import { useEffect, useState } from "react";
-import { Button, Modal, ScrollView, StyleSheet, Switch, TextInput } from "react-native";
+import { Button, Modal, SafeAreaView, ScrollView, StyleSheet, Switch, TextInput } from "react-native";
 
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
@@ -74,55 +74,71 @@ export default function PlaceModal({
             }
         }, [placeToEdit]);
 
-        return (
-            <Modal visible={visible}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={()=>{}}
-            >
-                <ScrollView>
-                    <ThemedView style={styles.modalContainer}>
-                        <ThemedText style={styles.title}>{placeToEdit ? 'Editar Local' :'Adicionar novo Local'}</ThemedText>
-                        
-                        <TextInput 
-                            style={[styles.input, validates.name && styles.inputError]}
-                            placeholder="Nome do local"
-                            value={name}
-                            onChangeText={setName}
-                        />
-                        {validates.name && <ThemedText style={styles.errorText}>{validates.name}</ThemedText>}
+    return (
+      <SafeAreaView>
+        <Modal
+          visible={visible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => {}}
+        >
+          <ScrollView>
+            <ThemedView style={styles.modalContainer}>
+              <ThemedText style={styles.title}>
+                {placeToEdit ? "Editar Local" : "Adicionar novo Local"}
+              </ThemedText>
 
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="Referência (Opcional)"
-                            value={reference}
-                            onChangeText={setReference}
-                        />
+              <TextInput
+                style={[styles.input, validates.name && styles.inputError]}
+                placeholder="Nome do local"
+                value={name}
+                onChangeText={setName}
+              />
+              {validates.name && (
+                <ThemedText style={styles.errorText}>
+                  {validates.name}
+                </ThemedText>
+              )}
 
-                        <TextInput 
-                            style={[styles.input, validates.maximumCapacityParticipants && styles.inputError]}
-                            placeholder="Capacidade Máxima (Opcional)"
-                            keyboardType="numeric"
-                            value={maximumCapacityParticipants?.toString() || ''}
-                            onChangeText={(text) => setMaximumCapacityParticipants(Number(text))}
-                        />
-                        {validates.maximumCapacityParticipants && <ThemedText style={styles.errorText}>{validates.maximumCapacityParticipants}</ThemedText>}
+              <TextInput
+                style={styles.input}
+                placeholder="Referência (Opcional)"
+                value={reference}
+                onChangeText={setReference}
+              />
 
-                        <ThemedView style={styles.switchContainer}>
-                            <ThemedText>Público:</ThemedText>
-                            <Switch value={isPublic} onValueChange={setIsPublic} />
-                        </ThemedView>
+              <TextInput
+                style={[
+                  styles.input,
+                  validates.maximumCapacityParticipants && styles.inputError,
+                ]}
+                placeholder="Capacidade Máxima (Opcional)"
+                keyboardType="numeric"
+                value={maximumCapacityParticipants?.toString() || ""}
+                onChangeText={(text) =>
+                  setMaximumCapacityParticipants(Number(text))
+                }
+              />
+              {validates.maximumCapacityParticipants && (
+                <ThemedText style={styles.errorText}>
+                  {validates.maximumCapacityParticipants}
+                </ThemedText>
+              )}
 
-                        <ThemedView style={styles.buttonContainer}>
-                            <Button title="Cancelar" onPress={onCancel} color='red' />
-                            <Button title="Confirmar" onPress={handleSave} color='green'/>
-                        </ThemedView>
+              <ThemedView style={styles.switchContainer}>
+                <ThemedText>Público:</ThemedText>
+                <Switch value={isPublic} onValueChange={setIsPublic} />
+              </ThemedView>
 
-                    </ThemedView>
-
-                </ScrollView>
-            </Modal>
-        )
+              <ThemedView style={styles.buttonContainer}>
+                <Button title="Cancelar" onPress={onCancel} color="red" />
+                <Button title="Confirmar" onPress={handleSave} color="green" />
+              </ThemedView>
+            </ThemedView>
+          </ScrollView>
+        </Modal>
+      </SafeAreaView>
+    );
 
 
     };
