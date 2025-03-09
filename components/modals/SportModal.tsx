@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   View,
-  Text,
   TextInput,
-  Button,
-  StyleSheet,
-  useColorScheme,
   TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Platform,
 } from "react-native";
-import { ISport } from "../../interface/ISport";
+import { ThemedView } from "../ThemedView";
+import { ThemedText } from "../ThemedText";
+import { ISport } from "../../interfaces/ISport";
+
+const { height, width } = Dimensions.get("window");
 
 interface SportModalProps {
   visible: boolean;
@@ -25,8 +28,7 @@ const SportModal: React.FC<SportModalProps> = ({
   onCancel,
 }) => {
   const [name, setName] = useState("");
-  const theme = useColorScheme();
-  const modalBackgroundColor = theme === "dark" ? "#333" : "#6DCA41"; 
+  const [validates, setValidates] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (sportData) {
@@ -36,43 +38,59 @@ const SportModal: React.FC<SportModalProps> = ({
     }
   }, [sportData]);
 
-  const handleSave = () => {
-    if (name.trim()) {
-      onAdd({ name });
-      onCancel();
+  const clearForm = () => {
+    setName("");
+    setValidates({});
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!name.trim()) {
+      newErrors.name = "O nome do esporte é obrigatório!";
     }
+    setValidates(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = () => {
+    if (!validateForm()) {
+      return;
+    }
+    onAdd({ name });
+    onCancel();
+    clearForm();
   };
 
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View
-          style={[
-            styles.modalContainer,
-            { backgroundColor: modalBackgroundColor },
-          ]}
-        >
-          <Text style={styles.title}>Adicionar Esporte</Text>
+      <ThemedView style={styles.overlay}>
+        <ThemedView style={styles.modalContainer}>
+          <ThemedText style={styles.title}>Adicionar Esporte</ThemedText>
           <TextInput
+            style={[styles.input, validates.name && styles.inputError]}
             value={name}
             onChangeText={setName}
             placeholder="Nome do esporte"
-            style={styles.input}
-            placeholderTextColor="#fff"
           />
+          {validates.name && (
+            <ThemedText style={styles.errorText}>{validates.name}</ThemedText>
+          )}
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-              <Text style={styles.buttonText}>Salvar</Text>
+            <TouchableOpacity
+              onPress={onCancel}
+              style={[styles.button, { backgroundColor: "#d9534f" }]}
+            >
+              <ThemedText style={styles.buttonText}>Cancelar</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onCancel}
+              onPress={handleSave}
+              style={[styles.button, { backgroundColor: "#6DCA41" }]}
             >
-              <Text style={styles.buttonText}>Cancelar</Text>
+              <ThemedText style={styles.buttonText}>Salvar</ThemedText>
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        </ThemedView>
+      </ThemedView>
     </Modal>
   );
 };
@@ -82,29 +100,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", 
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    width: "80%",
+    width: "85%",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
+    backgroundColor: "white",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#fff",
     marginBottom: 15,
+    textAlign: "center",
+    color: "#000", // Título padrão, pode ser ajustado para tema
   },
   input: {
     width: "100%",
-    height: 40,
-    borderColor: "#fff",
+    height: 45,
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
-    paddingHorizontal: 10,
-    color: "#fff",
-    marginBottom: 15,
+    paddingHorizontal: 12,
+    marginBottom: 20,
+    fontSize: 16,
+    backgroundColor: "white",
+  },
+  inputError: {
+    borderColor: "red",
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -113,18 +137,20 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 10,
-    backgroundColor: "#fff",
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     borderRadius: 5,
     alignItems: "center",
     marginHorizontal: 5,
   },
-  cancelButton: {
-    backgroundColor: "#F44336",
-  },
   buttonText: {
     fontWeight: "bold",
-    color: "#000",
+    color: "white",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 8,
   },
 });
 

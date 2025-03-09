@@ -46,7 +46,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="list"
+        name="SportList"
         options={{
           title: "Esportes",
           tabBarIcon: ({ color }: { color: string }) => (
