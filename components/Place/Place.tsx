@@ -30,7 +30,6 @@ export default function Place({ place, onEdit, onDelete }: PlaceProps) {
 
 const styles = StyleSheet.create({
     card: {
-    //   backgroundColor: '#fff',
       padding: 16,
       borderRadius: 8,
       marginBottom: 16,

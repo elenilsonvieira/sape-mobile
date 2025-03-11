@@ -9,7 +9,7 @@ import {
   useColorScheme,
   TouchableOpacity,
 } from "react-native";
-import { ISport } from "../../interface/ISport";
+import { ISport } from "../../interfaces/ISport";
 
 interface SportModalProps {
   visible: boolean;

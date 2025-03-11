@@ -109,6 +109,8 @@ export default function PlaceScreen(){
 const styles = StyleSheet.create({
     container: {
       flex: 1,
+      paddingTop: 50,
+      paddingHorizontal: 20,
     },
     header: {
       padding: 16,

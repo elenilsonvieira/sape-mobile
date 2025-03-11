@@ -11,7 +11,7 @@ import {
   TextInput,
   Button,
 } from "react-native";
-import { ISport } from "../../interface/ISport";
+import { ISport } from "../../interfaces/ISport";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SportList() {
@@ -24,7 +24,7 @@ export default function SportList() {
   useEffect(() => {
     async function getData() {
       try {
-        const data = await AsyncStorage.getItem("@SapeApp:sports");
+        const data = await AsyncStorage.getItem("@sape-mobile:sports");
         const sportsData: ISport[] = data ? JSON.parse(data) : [];
         setSportData(sportsData);
       } catch (e) {
@@ -51,7 +51,7 @@ export default function SportList() {
 
     setSportData((prevData) => {
       const updatedData = [...prevData, newSportWithId];
-      AsyncStorage.setItem("@SapeApp:sports", JSON.stringify(updatedData))
+      AsyncStorage.setItem("@sape-mobile:sports", JSON.stringify(updatedData))
         .then(() => Alert.alert("Sucesso", "Esporte adicionado com sucesso!"))
         .catch(() => Alert.alert("Erro", "Falha ao adicionar o esporte."));
       return updatedData;
@@ -80,7 +80,7 @@ export default function SportList() {
       const updatedData = prevData.map((sport) =>
         sport.id === selectedSport.id ? { ...sport, name: sportName } : sport
       );
-      AsyncStorage.setItem("@SapeApp:sports", JSON.stringify(updatedData))
+      AsyncStorage.setItem("@sape-mobile:sports", JSON.stringify(updatedData))
         .then(() => Alert.alert("Sucesso", "Esporte atualizado com sucesso!"))
         .catch(() => Alert.alert("Erro", "Falha ao atualizar o esporte."));
       return updatedData;
@@ -100,7 +100,7 @@ export default function SportList() {
         onPress: () => {
           setSportData((prevData) => {
             const updatedData = prevData.filter((sport) => sport.id !== id);
-            AsyncStorage.setItem("@SapeApp:sports", JSON.stringify(updatedData))
+            AsyncStorage.setItem("@sape-mobile:sports", JSON.stringify(updatedData))
               .then(() =>
                 Alert.alert("Sucesso", "Esporte removido com sucesso!")
               )
