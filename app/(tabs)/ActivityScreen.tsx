@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { FlatList, Button, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IActivity from '@/interfaces/IActivity';
 import { ISport } from '@/interfaces/ISport';
 import IPlace from '@/interfaces/IPlace';
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import ActivityModal from '@/components/modals/ActivityModal';
 import Activity from '@/components/Activity/Activity';
 
@@ -101,11 +100,16 @@ export default function ActivityScreen(){
         );
     }
 
+    const handleModal = async () => {
+        loadData();
+        setShowModal(true);
+    }
+
     return (
         <ThemedView style={styles.container}>
 
             <ThemedView style={styles.header}>
-                <Button title="Adicionar Atividade" onPress={() => setShowModal(true)} />
+                <Button title="Adicionar Atividade" onPress={handleModal} />
             </ThemedView>
 
             <ActivityModal 
