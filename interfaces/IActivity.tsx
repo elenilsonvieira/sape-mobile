@@ -7,8 +7,3 @@ export default interface IActivity{
     placeId: string;
     sportId: string;
 }
-
-
-// - creator: User;
-// - participants: User[]
-
