@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/ThemedView';
 import IActivity from '@/interfaces/IActivity';
@@ -15,6 +15,27 @@ export default function MyInscriptionsScreen() {
     const [sports, setSports] = useState<ISport[]>([]);
     const [places, setPlaces] = useState<IPlace[]>([]);
     const currentUserId = 1; // fixo para exemplo
+
+    const theme = useColorScheme();
+    const themeColors = {
+        dark: {
+          background: "#121212",
+          text: "#fff",
+          inputText: "#fff",
+          placeholder: "#ccc",
+          overlay: "rgba(0, 0, 0, 0.7)",
+          modalBackground: "#333",
+        },
+        light: {
+          background: "#f5f5f5",
+          text: "#000",
+          inputText: "#000",
+          placeholder: "#888",
+          overlay: "rgba(0, 0, 0, 0.5)",
+          modalBackground: "#fff",
+        },
+      };
+    const currentTheme = themeColors[theme || "light"];
 
     useEffect(() => {
         loadData();
@@ -49,7 +70,7 @@ export default function MyInscriptionsScreen() {
     return (
         <ThemedView style={styles.container}>
             <TouchableOpacity onPress={() => loadData()}>
-                <ThemedText style={styles.title}>
+                <ThemedText style={[styles.title, { color: currentTheme.text }]}>
                     Minhas Inscrições 🔄
                 </ThemedText>
             </TouchableOpacity>

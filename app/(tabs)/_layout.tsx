@@ -45,7 +45,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="PlaceScreen"
+        name="places"
         options={{
           title: "Locais",
           tabBarIcon: ({ color }: { color: string }) => (
@@ -54,7 +54,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="SportScreen"
+        name="sports"
         options={{
           title: "Esportes",
           tabBarIcon: ({ color }: { color: string }) => (
@@ -63,7 +63,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="ActivityScreen"
+        name="activities"
         options={{
           title: "Criar Atividades",
           tabBarIcon: ({ color }: { color: string }) => (
