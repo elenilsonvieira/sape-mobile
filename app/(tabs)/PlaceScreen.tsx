@@ -1,39 +1,30 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  Switch,
-  Alert,
   SafeAreaView,
   FlatList,
-  Dimensions,
+  TouchableOpacity,
+  Alert,
   useColorScheme,
+  Dimensions,
   Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import IPlace from "../../interfaces/IPlace"; // Importe a interface IPlace
+import IPlace from "../../interfaces/IPlace";
+import Place from "@/components/Place/Place";
+import PlaceModal from "@/components/modals/PlaceModal";
 
 const { height, width } = Dimensions.get("window");
 
-export default function PlaceScreen() {
+export default function PlaceScreen(){
   const [placesData, setPlacesData] = useState<IPlace[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<IPlace | null>(null);
-  const [placeName, setPlaceName] = useState("");
-  const [placeReference, setPlaceReference] = useState("");
-  const [placeMaxCapacity, setPlaceMaxCapacity] = useState<number | undefined>(
-    undefined
-  );
-  const [isPublic, setIsPublic] = useState(false);
-
-  const theme = useColorScheme(); // Detecta o tema atual (light ou dark)
+  const theme = useColorScheme();
 
   useEffect(() => {
-    async function getData() {
+    const loadPlaceData = async () => {
       try {
         const data = await AsyncStorage.getItem("@SapeApp:places");
         const places: IPlace[] = data ? JSON.parse(data) : [];
@@ -42,54 +33,30 @@ export default function PlaceScreen() {
         console.error("Erro ao carregar locais:", error);
         Alert.alert("Erro", "Falha ao carregar os locais.");
       }
-    }
-
-    getData();
+    };
+    loadPlaceData();
   }, []);
 
-  const handleAddPlace = () => {
-    if (!placeName.trim()) {
-      Alert.alert("Erro", "O nome do local não pode estar vazio.");
-      return;
+  const handleSavePlace = async (place: IPlace) => {
+    try {
+      const updatedPlaces = selectedPlace
+        ? placesData.map((p) => (p.id === place.id ? place : p))
+        : [...placesData, place];
+
+      await AsyncStorage.setItem("@SapeApp:places", JSON.stringify(updatedPlaces));
+      setPlacesData(updatedPlaces);
+      setModalVisible(false);
+      Alert.alert(
+              "Sucesso",
+              selectedPlace
+                ? "Local atualizado com sucesso!"
+                : "Local adicionado com sucesso!"
+            );
+    } catch (error) {
+      console.error("Erro ao salvar local:", error);
+      Alert.alert("Erro", "Falha ao salvar o local.");
     }
-
-    const newPlace: IPlace = {
-      id: Math.floor(Math.random() * 1000).toString(),
-      name: placeName,
-      reference: placeReference,
-      maximumCapacityParticipants: placeMaxCapacity,
-      isPublic,
-    };
-
-    setPlacesData((prevData) => {
-      const updatedData = [...prevData, newPlace];
-      AsyncStorage.setItem("@SapeApp:places", JSON.stringify(updatedData));
-      return updatedData;
-    });
-
-    closeModal();
-  };
-
-  const handleUpdatePlace = () => {
-    if (!selectedPlace) return;
-
-    setPlacesData((prevData) => {
-      const updatedData = prevData.map((place) =>
-        place.id === selectedPlace.id
-          ? {
-              ...place,
-              name: placeName,
-              reference: placeReference,
-              maximumCapacityParticipants: placeMaxCapacity,
-              isPublic,
-            }
-          : place
-      );
-      AsyncStorage.setItem("@SapeApp:places", JSON.stringify(updatedData));
-      return updatedData;
-    });
-
-    closeModal();
+    setSelectedPlace(null);
   };
 
   const handleDeletePlace = () => {
@@ -106,60 +73,27 @@ export default function PlaceScreen() {
         {
           text: "Excluir",
           style: "destructive",
-          onPress: () => {
-            setPlacesData((prevData) => {
-              const updatedData = prevData.filter(
-                (place) => place.id !== selectedPlace.id
+          onPress: async () => {
+            try {
+              const updatedPlaces = placesData.filter(
+                (p) => p.id !== selectedPlace.id
               );
-              AsyncStorage.setItem(
+              await AsyncStorage.setItem(
                 "@SapeApp:places",
-                JSON.stringify(updatedData)
+                JSON.stringify(updatedPlaces)
               );
-              return updatedData;
-            });
-
-            closeModal();
+              setPlacesData(updatedPlaces);
+              Alert.alert("Sucesso", "Local excluído com sucesso!");
+              setModalVisible(false);
+            } catch (error) {
+              console.error("Erro ao deletar local:", error);
+              Alert.alert("Erro", "Falha ao deletar o local.");
+            }
           },
         },
       ]
     );
   };
-
-  const openModal = (place: IPlace | null) => {
-    setSelectedPlace(place);
-    setPlaceName(place?.name || "");
-    setPlaceReference(place?.reference || "");
-    setPlaceMaxCapacity(place?.maximumCapacityParticipants || undefined);
-    setIsPublic(place?.isPublic || false);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setPlaceName("");
-    setPlaceReference("");
-    setPlaceMaxCapacity(undefined);
-    setIsPublic(false);
-    setModalVisible(false);
-    setSelectedPlace(null);
-  };
-
-  const renderItem = ({ item }: { item: IPlace }) => (
-    <TouchableOpacity
-      style={[styles.placeItem]} // Fundo verde fixo nos itens
-      onPress={() => openModal(item)}
-    >
-      <Text style={styles.placeName}>{item.name}</Text>
-      <Text style={styles.placeReference}>
-        Referência: {item.reference || "N/A"}
-      </Text>
-      <Text style={styles.placeCapacity}>
-        Capacidade Máxima: {item.maximumCapacityParticipants || "N/A"}
-      </Text>
-      <Text style={styles.placePublic}>
-        Público: {item.isPublic ? "Sim" : "Não"}
-      </Text>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView
@@ -176,128 +110,40 @@ export default function PlaceScreen() {
 
       <FlatList
         data={placesData}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <Place
+            place={item}
+            onPress={() => {
+              setSelectedPlace(item);
+              setModalVisible(true);
+            }}
+          />
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
       />
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => openModal(null)}
+        onPress={() => {
+          setSelectedPlace(null);
+          setModalVisible(true);
+        }}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      <Modal
+      <PlaceModal
         visible={modalVisible}
-        onRequestClose={closeModal}
-        animationType="slide"
-        transparent
-      >
-        <View
-          style={[
-            styles.modalContainer,
-            {
-              backgroundColor:
-                theme === "dark" ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.5)",
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: theme === "dark" ? "#333" : "#fff" },
-            ]}
-          >
-            <Text
-              style={[
-                styles.modalTitle,
-                { color: theme === "dark" ? "#fff" : "#000" },
-              ]}
-            >
-              {selectedPlace ? "Editar Local" : "Adicionar Novo Local"}
-            </Text>
-
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme === "dark" ? "#444" : "#fff",
-                  color: theme === "dark" ? "#fff" : "#000",
-                },
-              ]}
-              placeholder="Nome do Local"
-              value={placeName}
-              onChangeText={setPlaceName}
-              placeholderTextColor={theme === "dark" ? "#ccc" : "#888"}
-            />
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme === "dark" ? "#444" : "#fff",
-                  color: theme === "dark" ? "#fff" : "#000",
-                },
-              ]}
-              placeholder="Referência"
-              value={placeReference}
-              onChangeText={setPlaceReference}
-              placeholderTextColor={theme === "dark" ? "#ccc" : "#888"}
-            />
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme === "dark" ? "#444" : "#fff",
-                  color: theme === "dark" ? "#fff" : "#000",
-                },
-              ]}
-              placeholder="Capacidade Máxima"
-              keyboardType="numeric"
-              value={placeMaxCapacity?.toString()}
-              onChangeText={(text) => setPlaceMaxCapacity(Number(text))}
-              placeholderTextColor={theme === "dark" ? "#ccc" : "#888"}
-            />
-            <View style={styles.switchContainer}>
-              <Text
-                style={[
-                  styles.switchLabel,
-                  { color: theme === "dark" ? "#fff" : "#000" },
-                ]}
-              >
-                Local Público:
-              </Text>
-              <Switch value={isPublic} onValueChange={setIsPublic} />
-            </View>
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
-                <Text style={styles.modalButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={selectedPlace ? handleUpdatePlace : handleAddPlace}
-              >
-                <Text style={styles.modalButtonText}>
-                  {selectedPlace ? "Atualizar Local" : "Adicionar Local"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {selectedPlace && (
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={handleDeletePlace}
-              >
-                <Text style={styles.deleteButtonText}>Deletar Local</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setModalVisible(false)}
+        selectedPlace={selectedPlace}
+        onSave={handleSavePlace}
+        onDelete={handleDeletePlace}
+        theme={theme || "light"}
+      />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -314,40 +160,6 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: 100,
   },
-  placeItem: {
-    padding: 15,
-    marginBottom: 15,
-    borderRadius: 8,
-    width: width * 0.8,
-    alignSelf: "center",
-    backgroundColor: "#4CAF50",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  placeName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  placeReference: {
-    marginTop: 5,
-    fontSize: 14,
-    color: "#fff",
-  },
-  placeCapacity: {
-    marginTop: 5,
-    fontSize: 14,
-    color: "#fff",
-  },
-  placePublic: {
-    marginTop: 5,
-    fontSize: 14,
-    fontStyle: "italic",
-    color: "#fff",
-  },
   addButton: {
     position: "absolute",
     bottom: Platform.OS === "android" ? height * 0.1 : height * 0.12,
@@ -362,68 +174,5 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 30,
     color: "#fff",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    padding: 20,
-    borderRadius: 8,
-    width: width * 0.8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 10,
-    fontSize: 16,
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  switchLabel: {
-    fontSize: 16,
-    marginRight: 10,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  modalButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-    width: "48%",
-    alignItems: "center",
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  deleteButton: {
-    backgroundColor: "#FF6347",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 15,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontSize: 16,
   },
 });
