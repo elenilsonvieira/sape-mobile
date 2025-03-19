@@ -20,7 +20,6 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
           },
           default: {},
@@ -50,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: "Locais",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="location.circle" color={color} />
           ),
         }}
       />
@@ -59,7 +58,7 @@ export default function TabLayout() {
         options={{
           title: "Esportes",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="eye" color={color} />
+            <IconSymbol size={28} name="sportscourt" color={color} />
           ),
         }}
       />
@@ -68,16 +67,16 @@ export default function TabLayout() {
         options={{
           title: "Criar Atividades",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="checkmark.seal.text.page.fill.rtl" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="inscriptions"
         options={{
-          title: "Se Inscrever",
+          title: "Inscrição",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="flag.2.crossed.fill" color={color} />
           ),
         }}
       />
@@ -86,7 +85,7 @@ export default function TabLayout() {
         options={{
           title: "Minhas Inscrições",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="sprinkler.fill" color={color} />
           ),
         }}
       />

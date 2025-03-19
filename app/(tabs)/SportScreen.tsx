@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ISport } from "../../interfaces/ISport";
-import Sport from "@/components/Sport/Sport";
+import Sport from "@/components/sport/Sport";
 import SportModal from "@/components/modals/SportModal";
 
 const { height, width } = Dimensions.get("window");

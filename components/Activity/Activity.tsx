@@ -1,9 +1,11 @@
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { ISport } from '@/interfaces/ISport';
 import IPlace from '@/interfaces/IPlace';
 import IActivity from '@/interfaces/IActivity';
+
+const { width } = Dimensions.get("window");
 
 export type ActivityProps = {
   activity: IActivity;
@@ -30,17 +32,20 @@ export default function Activity({ activity, sports, places }: ActivityProps){
 const styles = StyleSheet.create({
   activityCard: {
     padding: 15,
+    marginBottom: 15,
     borderRadius: 8,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    width: width * 0.8,
+    alignSelf: "center",
+    backgroundColor: "#4CAF50",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   activityTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 5,
+    fontWeight: "bold",
+    color: "#fff",
   },
 });
