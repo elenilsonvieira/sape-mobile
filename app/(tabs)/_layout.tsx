@@ -37,6 +37,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="users"
+        options={{
+          title: "Usuários",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="PlaceScreen"
         options={{
           title: "Locais",
@@ -57,12 +66,31 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ActivityScreen"
         options={{
-          title: "Atividades",
+          title: "Criar Atividades",
+          tabBarIcon: ({ color }: { color: string }) => (
+            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="inscriptions"
+        options={{
+          title: "Se Inscrever",
+          tabBarIcon: ({ color }: { color: string }) => (
+            <IconSymbol size={28} name="paperplane.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="MyInscriptions"
+        options={{
+          title: "Minhas Inscrições",
           tabBarIcon: ({ color }: { color: string }) => (
             <IconSymbol size={28} name="paperplane.fill" color={color} />
           ),
         }}
       />
     </Tabs>
+    
   );
 }
