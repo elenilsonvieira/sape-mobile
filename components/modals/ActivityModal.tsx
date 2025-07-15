@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   View,
+  Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -53,14 +54,18 @@ export default function ActivityModal({
   const [showTimeStartPicker, setShowTimeStartPicker] = useState(false);
   const [showTimeFinishPicker, setShowTimeFinishPicker] = useState(false);
 
+  const [errors, setErrors] = useState({
+    titulo: false,
+    sport: false,
+    place: false,
+  });
+
   useEffect(() => {
     if (activityToEdit) {
       setTitulo(activityToEdit.titulo);
       setDateAtividade(new Date(activityToEdit.dataAtividade));
       setTimeStart(new Date(`1970-01-01T${activityToEdit.atividadeStartTime}`));
-      setTimeFinish(
-        new Date(`1970-01-01T${activityToEdit.atividadeFinishTime}`)
-      );
+      setTimeFinish(new Date(`1970-01-01T${activityToEdit.atividadeFinishTime}`));
       setSelectedPlace(activityToEdit.placeId);
       setSelectedSport(activityToEdit.sportId);
     } else {
@@ -75,28 +80,49 @@ export default function ActivityModal({
     setDateAtividade(new Date());
     setTimeStart(new Date());
     setTimeFinish(new Date());
+    setErrors({
+      titulo: false,
+      sport: false,
+      place: false,
+    });
   };
 
   const handleSaveActivity = () => {
+    const isTituloValido = titulo.trim().length > 0;
+    const isSportValido = selectedSport.trim().length > 0;
+    const isPlaceValido = selectedPlace.trim().length > 0;
+
+    setErrors({
+      titulo: !isTituloValido,
+      sport: !isSportValido,
+      place: !isPlaceValido,
+    });
+
+    if (!isTituloValido || !isSportValido || !isPlaceValido) {
+      Alert.alert("Erro", "Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    // Validação de horário desativada temporariamente, pois o problema das datas/hora fixas está sendo resolvido.
+    /*
+    const isStartBeforeFinish = timeStart < timeFinish;
+    if (!isStartBeforeFinish) {
+      Alert.alert("Erro", "O horário de início deve ser anterior ao horário de fim.");
+      return;
+    }
+    */
+
     const newActivity: IActivity = {
-      id: activityToEdit
-        ? activityToEdit.id
-        : (Math.random() * 1000).toString(),
-      titulo,
+      id: activityToEdit ? activityToEdit.id : (Math.random() * 1000).toString(),
+      titulo: titulo.trim(),
       sportId: selectedSport,
       placeId: selectedPlace,
       dataAtividade: dateAtividade.toISOString(),
-      atividadeStartTime: `${timeStart
-        .getHours()
-        .toString()
-        .padStart(2, "0")}:${timeStart
+      atividadeStartTime: `${timeStart.getHours().toString().padStart(2, "0")}:${timeStart
         .getMinutes()
         .toString()
         .padStart(2, "0")}`,
-      atividadeFinishTime: `${timeFinish
-        .getHours()
-        .toString()
-        .padStart(2, "0")}:${timeFinish
+      atividadeFinishTime: `${timeFinish.getHours().toString().padStart(2, "0")}:${timeFinish
         .getMinutes()
         .toString()
         .padStart(2, "0")}`,
@@ -137,47 +163,74 @@ export default function ActivityModal({
               {
                 color: currentTheme.inputText,
                 backgroundColor: currentTheme.modalBackground,
+                borderColor: errors.titulo ? "#FF0000" : "#ced4da",
               },
             ]}
             placeholder="Título da atividade"
             value={titulo}
-            onChangeText={setTitulo}
+            onChangeText={(text) => {
+              setTitulo(text);
+              if (errors.titulo && text.trim().length > 0) {
+                setErrors((prev) => ({ ...prev, titulo: false }));
+              }
+            }}
             placeholderTextColor={currentTheme.placeholder}
           />
+          {errors.titulo && (
+            <ThemedText style={styles.errorText}>Campo obrigatório</ThemedText>
+          )}
 
-          <ThemedView style={styles.pickerContainer}>
+          <ThemedView
+            style={[
+              styles.pickerContainer,
+              { borderColor: errors.sport ? "#FF0000" : "#ced4da" },
+            ]}
+          >
             <Picker
               selectedValue={selectedSport}
-              onValueChange={(itemValue) => setSelectedSport(itemValue)}
+              onValueChange={(itemValue) => {
+                setSelectedSport(itemValue);
+                if (errors.sport && itemValue) {
+                  setErrors((prev) => ({ ...prev, sport: false }));
+                }
+              }}
               style={styles.picker}
             >
               <Picker.Item label="Selecione um esporte" value="" />
               {sports.map((sport) => (
-                <Picker.Item
-                  key={sport.id}
-                  label={sport.name}
-                  value={sport.id}
-                />
+                <Picker.Item key={sport.id} label={sport.name} value={sport.id} />
               ))}
             </Picker>
           </ThemedView>
+          {errors.sport && (
+            <ThemedText style={styles.errorText}>Campo obrigatório</ThemedText>
+          )}
 
-          <ThemedView style={styles.pickerContainer}>
+          <ThemedView
+            style={[
+              styles.pickerContainer,
+              { borderColor: errors.place ? "#FF0000" : "#ced4da" },
+            ]}
+          >
             <Picker
               selectedValue={selectedPlace}
-              onValueChange={setSelectedPlace}
+              onValueChange={(itemValue) => {
+                setSelectedPlace(itemValue);
+                if (errors.place && itemValue) {
+                  setErrors((prev) => ({ ...prev, place: false }));
+                }
+              }}
               style={styles.picker}
             >
               <Picker.Item label="Selecione um local" value="" />
               {places.map((place) => (
-                <Picker.Item
-                  key={place.id}
-                  label={place.name}
-                  value={place.id}
-                />
+                <Picker.Item key={place.id} label={place.name} value={place.id} />
               ))}
             </Picker>
           </ThemedView>
+          {errors.place && (
+            <ThemedText style={styles.errorText}>Campo obrigatório</ThemedText>
+          )}
 
           <ThemedView style={styles.datetimeContainer}>
             <TouchableOpacity
@@ -185,7 +238,7 @@ export default function ActivityModal({
               onPress={() => setShowDatePicker(true)}
             >
               <ThemedText style={{ color: currentTheme.text }}>
-                {`📅 Data Atividade: ${dateAtividade.toLocaleDateString()}`}
+                📅 Data Atividade: {dateAtividade.toLocaleDateString()}
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>
@@ -196,10 +249,11 @@ export default function ActivityModal({
               onPress={() => setShowTimeStartPicker(true)}
             >
               <ThemedText style={{ color: currentTheme.text }}>
-                {`⏰ Hora de Início: ${timeStart.toLocaleTimeString([], {
+                ⏰ Hora de Início:{" "}
+                {timeStart.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
-                })}`}
+                })}
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>
@@ -210,10 +264,11 @@ export default function ActivityModal({
               onPress={() => setShowTimeFinishPicker(true)}
             >
               <ThemedText style={{ color: currentTheme.text }}>
-                {`⏰ Hora de Fim: ${timeFinish.toLocaleTimeString([], {
+                ⏰ Hora de Fim:{" "}
+                {timeFinish.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
-                })}`}
+                })}
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>
@@ -259,27 +314,23 @@ export default function ActivityModal({
               style={[styles.button, { backgroundColor: "#FF9800" }]}
               onPress={onClose}
             >
-              <ThemedText style={{ color: currentTheme.text }}>
-                Cancelar
-              </ThemedText>
+              <ThemedText style={{ color: currentTheme.text }}>Cancelar</ThemedText>
             </TouchableOpacity>
+
             {activityToEdit && (
               <TouchableOpacity
                 style={[styles.button, { backgroundColor: "#FF6347" }]}
                 onPress={handleDelete}
               >
-                <ThemedText style={{ color: currentTheme.text }}>
-                  Deletar
-                </ThemedText>
+                <ThemedText style={{ color: currentTheme.text }}>Deletar</ThemedText>
               </TouchableOpacity>
             )}
+
             <TouchableOpacity
               style={[styles.button, { backgroundColor: "#4CAF50" }]}
               onPress={handleSaveActivity}
             >
-              <ThemedText style={{ color: currentTheme.text }}>
-                Confirmar
-              </ThemedText>
+              <ThemedText style={{ color: currentTheme.text }}>Confirmar</ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </View>
@@ -312,14 +363,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 5,
     fontSize: 16,
+    borderColor: "#ced4da", // padrão (alterado dinamicamente)
   },
   pickerContainer: {
     borderWidth: 1,
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,
     overflow: "hidden",
+    borderColor: "#ced4da", // padrão (alterado dinamicamente)
   },
   picker: {
     height: 50,
@@ -351,5 +404,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  errorText: {
+    color: "#FF0000",
+    fontSize: 12,
+    marginBottom: 10,
+    marginLeft: 5,
   },
 });
