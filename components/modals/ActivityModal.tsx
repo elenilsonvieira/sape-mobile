@@ -196,7 +196,7 @@ export default function ActivityModal({
               }}
               style={styles.picker}
             >
-              <Picker.Item label="Selecione um esporte:" value="" />
+              <Picker.Item label="Selecione um esporte: " value="" />
               {sports.map((sport) => (
                 <Picker.Item key={sport.id} label={sport.name} value={sport.id} />
               ))}
