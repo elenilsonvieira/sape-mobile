@@ -285,26 +285,36 @@ export default function ActivityModal({
             />
           )}
 
-          {showTimeStartPicker && (
-            <DateTimePicker
-              value={timeStart}
-              mode="time"
-              display="default"
-              onChange={(_, selectedTime) => {
-                setShowTimeStartPicker(false);
-                selectedTime && setTimeStart(selectedTime);
+         {showTimeStartPicker && (
+         <DateTimePicker
+         value={timeStart}
+         mode="time"
+        display="default"
+        is24Hour={true}
+       onChange={(_, selectedTime) => {
+       setShowTimeStartPicker(false);
+      if (selectedTime) {
+        const updated = new Date(timeStart);
+        updated.setHours(selectedTime.getHours());
+        updated.setMinutes(selectedTime.getMinutes());
+        setTimeStart(updated);
               }}
             />
           )}
 
-          {showTimeFinishPicker && (
-            <DateTimePicker
-              value={timeFinish}
-              mode="time"
-              display="default"
-              onChange={(_, selectedTime) => {
-                setShowTimeFinishPicker(false);
-                selectedTime && setTimeFinish(selectedTime);
+         {showTimeFinishPicker && (
+          <DateTimePicker
+          value={timeFinish}
+          mode="time"
+         display="default"
+        is24Hour={true}
+        onChange={(_, selectedTime) => {
+      setShowTimeFinishPicker(false);
+      if (selectedTime) {
+        const updated = new Date(timeFinish);
+        updated.setHours(selectedTime.getHours());
+        updated.setMinutes(selectedTime.getMinutes());
+        setTimeFinish(updated);
               }}
             />
           )}
