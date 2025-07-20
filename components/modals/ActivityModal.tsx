@@ -278,6 +278,7 @@ export default function ActivityModal({
               value={dateAtividade}
               mode="date"
               display="default"
+              minimumDate={new Date()}
               onChange={(_, selectedDate) => {
                 setShowDatePicker(false);
                 selectedDate && setDateAtividade(selectedDate);
@@ -299,7 +300,7 @@ export default function ActivityModal({
         updated.setMinutes(selectedTime.getMinutes());
         setTimeStart(updated);
               }}
-            />
+       }/>
           )}
 
          {showTimeFinishPicker && (
@@ -316,7 +317,7 @@ export default function ActivityModal({
         updated.setMinutes(selectedTime.getMinutes());
         setTimeFinish(updated);
               }}
-            />
+             }/>
           )}
 
           <ThemedView style={styles.buttonContainer}>
