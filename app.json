@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "sape-mobile",
-    "slug": "sape-mobile",
+    "name": "sape-mobile-front",
+    "slug": "sape-mobile-front",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "sapemobilefront",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -15,7 +15,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.sapemobilefront"
     },
     "web": {
       "bundler": "metro",
@@ -38,5 +40,4 @@
       "typedRoutes": true
     }
   }
-  
 }
